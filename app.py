@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from models import db
 
-app=Flask(__name__)
+app = Flask(__name__)
 
 POSTGRES = {
     'user': 'postgres',
@@ -11,7 +11,7 @@ POSTGRES = {
     'port': '5432',
 }
 
-app.config['DEBUG']= True
+app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
 %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 db.init_app(app)
@@ -28,10 +28,10 @@ db.init_app(app)
     def __repr__(self):
         return 'User %r>' % self.username"""
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 
 if __name__ == '__main__':

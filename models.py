@@ -3,6 +3,7 @@ import datetime
 
 db = SQLAlchemy()
 
+
 class BaseModel(db.Model):
     """Base data model for all objects"""
     __abstract__ = True
@@ -31,6 +32,6 @@ class Station(BaseModel, db.Model):
     """Model for the stations table"""
     __tablename__ = 'stations'
 
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)
