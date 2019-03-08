@@ -22,53 +22,48 @@ def add_files():
             print(file+" already indexed")
 
     # indexing and DB management
-    for file in to_add:
-        # a dictionary is created for each file. the keys are the words in the file and the values are the number of
-        # occurrences for the word
-        filePtr = open("files/files_indexed/"+file, "r")
-        fileDict = {}
-        for line in filePtr:
-            for word in re.split("[ .,;:\"\n!?()]+", line):
-                word = word.lower()
-                word = word.replace("'", "_")  # ' is replaced with _ because it doesn't work with the syntax rules
-                if word in fileDict:
-                    fileDict[word] = fileDict[word] + 1
-                else:
-                    if word is not "":
-                        fileDict[word] = 1
-        # the indexing process
-        con = None
-        cur = None
-        try:
-            con = psycopg2.connect(host="localhost", database="IR", user="postgres", password=1234, port=5432)
-            cur = con.cursor()
-            cur.execute("INSERT INTO retrieval.files(f_name, hidden) VALUES('"+file+"', FALSE) RETURNING f_id;")
+    con = None
+    cur = None
+    try:
+        con = psycopg2.connect(host="localhost", database="IR", user="postgres", password=1234, port=5432)
+        cur = con.cursor()
+        for file in to_add:
+            # a dictionary is created for each file. the keys are the words in the file and the values are the number of
+            # occurrences for the word
+            filePtr = open("files/files_indexed/"+file, "r")
+            first_line = filePtr.readline().split(",")
+            cur.execute("INSERT INTO retrieval.files(f_name, f_author, f_type, hidden) VALUES('"+file+"', '"
+                        +first_line[0]+"', '"+first_line[1]+"', FALSE) RETURNING f_id;")
             fileID = cur.fetchone()[0]
             con.commit()
+            fileDict = {}
+            for line in filePtr:
+                for word in re.split("[ .,;:\"\n!?()]+", line):
+                    word = word.lower()
+                    word = word.replace("'", "_")  # ' is replaced with _ because it doesn't work with the syntax rules
+                    if word in fileDict:
+                        fileDict[word] = fileDict[word] + 1
+                    else:
+                        if word is not "":
+                            fileDict[word] = 1
+            # the indexing process
             for word in fileDict:
                 cur.execute("SELECT * FROM retrieval.inverted_index WHERE word='"+word+"'")
                 row = cur.fetchone()
                 if row is not None:
-                    cur.execute("UPDATE retrieval.inverted_index SET docs_num="+str(row[1] + 1)+" WHERE word='"+word+"'")
-                    con.commit()
-                    cur.execute("INSERT INTO retrieval."+row[2]+"(f_id, hits_num) VALUES("+str(fileID)+", "
-                                +str(fileDict[word])+");")
+                    cur.execute("UPDATE retrieval.inverted_index SET docs_num="+str(row[1]+1)+" WHERE word='"+word+"'")
                     con.commit()
                 else:
-                    cur.execute("INSERT INTO retrieval.inverted_index(word, docs_num, files_table_name) VALUES('"
-                                +word+"', "+str(1)+", '"+word+"_table');")
+                    cur.execute("INSERT INTO retrieval.inverted_index(word, docs_num) VALUES('"+word+"', "+str(1)+");")
                     con.commit()
-                    cur.execute("CREATE TABLE retrieval."+word+"_table(f_id BIGINT PRIMARY KEY NOT NULL, "
-                                "hits_num BIGINT NOT NULL);")
-                    con.commit()
-                    cur.execute("INSERT INTO retrieval."+word+"_table(f_id, hits_num) VALUES("+str(fileID)+", "
-                                +str(fileDict[word])+");")
-                    con.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if cur is not None:
-                cur.close()
-            if con is not None:
-                con.close()
-        filePtr.close()
+                cur.execute("INSERT INTO retrieval.posting_file(word, f_id, hits_num) VALUES('" + word + "', "
+                            + str(fileID) + ", " + str(fileDict[word]) + ");")
+                con.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
+    filePtr.close()
