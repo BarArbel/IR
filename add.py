@@ -24,6 +24,7 @@ def add_files():
     # indexing and DB management
     con = None
     cur = None
+    filePtr = None
     try:
         con = psycopg2.connect(host="localhost", database="IR", user="postgres", password=1234, port=5432)
         cur = con.cursor()
@@ -66,4 +67,5 @@ def add_files():
             cur.close()
         if con is not None:
             con.close()
-    filePtr.close()
+        if filePtr is not None:
+            filePtr.close()
