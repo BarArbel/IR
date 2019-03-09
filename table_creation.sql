@@ -22,3 +22,7 @@ CREATE TABLE IF NOT EXISTS retrieval.posting_file(
 	hits_num BIGINT NOT NULL,
 	PRIMARY KEY(word, f_id)
 );
+
+CREATE TABLE IF NOT EXISTS retrieval.stop_words(
+	word TEXT PRIMARY KEY NOT NULL
+);
