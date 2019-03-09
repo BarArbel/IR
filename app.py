@@ -60,13 +60,19 @@ def adminZone():
         password = request.form['Enter']
         if password == "1234":
             html_content = "<section>"
+            
+            #Check if directory is empty
             for filename in os.listdir("files/files_indexed/"):
                 if filename.endswith(".txt"): 
-                     # print(os.path.join(directory, filename))
+                    file = open("files/files_indexed/"+filename, "r") 
+                    file_content = file.read() 
+                    author = file_content.split(',', 1)[0]
+                    html_content+= ('<a class="result toDelete"><h2>&#128686 &#8998 Delete '+filename.split('.txt', 1)[0]+'/'+author+'</h2></a>')
                     continue
                 else:
                     continue
             html_content += "</section>"
+            print(html_content)
             return render_template("adminZone.html", literaturegohere=html_content)
 
 if __name__ == '__main__':
