@@ -34,7 +34,7 @@ def add_files():
             filePtr = open("files/files_indexed/"+file, "r")
             first_line = filePtr.readline().split(",")
             cur.execute("INSERT INTO retrieval.files(f_name, f_author, f_type, hidden) VALUES('"+file+"', '"
-                        +first_line[0]+"', '"+first_line[1]+"', FALSE) RETURNING f_id;")
+                        +first_line[0]+"', '"+first_line[1].replace("\n", "")+"', FALSE) RETURNING f_id;")
             fileID = cur.fetchone()[0]
             con.commit()
             fileDict = {}
