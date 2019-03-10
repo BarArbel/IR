@@ -26,3 +26,9 @@ CREATE TABLE IF NOT EXISTS retrieval.posting_file(
 CREATE TABLE IF NOT EXISTS retrieval.stop_words(
 	word TEXT PRIMARY KEY NOT NULL
 );
+
+INSERT INTO retrieval.stop_words(word) VALUES
+	('a'), ('all'), ('and'), ('any'), ('at'),
+	('be'), ('do'), ('for'), ('her'), ('how'),
+	('if'), ('is'), ('many'), ('not'), ('see'),
+	('the'), ('their'), ('when'), ('why');
