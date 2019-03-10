@@ -13,20 +13,14 @@
 <body>
     <div id="wrapper">
         <header>
-            <button id="myBtn">Admin zone</button>
+           <button id="myBtn">Admin zone</button>
+            <a href="/"><br><br>&#127968 Home Page</a>
+            <a href="#" onclick="javascript:history.go(-1)"><br><br>◄ Back</a>
         </header>
         <br>
-        <main>
-        	<h1>Literature Search</h1>
-            <h2>Instructions:<br>Brackets: () OR: || AND: && NOT: !!</h2>
-            <br>
-	        <form class="query" action='/results' onsubmit="return validateQuery()" method='get'>
-				<input type="text" placeholder="Search.." name="search">
-	  			<button type="submit"><i class="fa fa-search"></i></button>
-	        </form>
-   		</main>
+        {{literaturegohere | safe}}
 
-   		<div id="myModal" class="modal">
+        <div id="myModal" class="modal">
 
           <!-- Modal content -->
           <div class="modal-content">
