@@ -90,7 +90,8 @@ form.query::after {
   margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+  width: 60%; /* Could be more or less, depending on screen size */
+  height: 10%;
 }
 
 /* The Close Button */
@@ -110,12 +111,18 @@ form.query::after {
 
 /* Style the search field */
 form.adminPass input[type=password] {
-  padding: 10px;
+  margin: 10px;
+  margin-left: 230px;
   font-size: 24px;
   border: 1px solid grey;
   float: left;
   width: 50%;
   background: #f1f1f1;
+}
+
+form.adminPass button{
+    float:left;
+    margin: 10px;
 }
 /* ---------------------- Results ---------------------- */
 

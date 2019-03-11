@@ -1,37 +1,48 @@
 from flask import Flask, render_template, request
-import os
-
+import os, psycopg2
 app = Flask(__name__)
 
-POSTGRES = {
-    'user': 'postgres',
-    'pw': '1234',
-    'db': 'IR',
-    'host': 'localhost',
-    'port': '5432',
-}
 
-app.config['DEBUG'] = True
-"""app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:\
-%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-db.init_app(app)
+app.config['DEBUG'] = False
 
-class User(db.Model):
-    id=db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(120), unique=True)
+def init_schema(cur):
+
+    cur.execute("CREATE SCHEMA IF NOT EXISTS retrieval;")
+    cur.execute("CREATE TABLE IF NOT EXISTS retrieval.files(" \
+                	"f_id BIGSERIAL PRIMARY KEY NOT NULL, " \
+                	"f_name TEXT NOT NULL, " \
+                	"f_author TEXT NOT NULL, " \
+                	"f_type TEXT NOT NULL, " \
+                	"hidden BOOLEAN NOT NULL " \
+                "); " )
     
-    def __init__(self,username,email):
-        self.username = username
-        self.email = email
+    cur.execute("CREATE TABLE IF NOT EXISTS retrieval.inverted_index( " \
+                	"word TEXT PRIMARY KEY NOT NULL, " \
+                	"docs_num BIGINT NOT NULL " \
+                "); " )
+    cur.execute("CREATE TABLE IF NOT EXISTS retrieval.posting_file( " \
+                	"word TEXT NOT NULL, " \
+                	"f_id BIGINT NOT NULL, " \
+                	"hits_num BIGINT NOT NULL, " \
+                	"PRIMARY KEY(word, f_id) " \
+                "); " )
     
-    def __repr__(self):
-        return 'User %r>' % self.username"""
+    cur.execute("CREATE TABLE IF NOT EXISTS retrieval.stop_words( " \
+                	"word TEXT PRIMARY KEY NOT NULL " \
+                "); " )
+    
+    try:
+        cur.execute("INSERT INTO retrieval.stop_words(word) VALUES " \
+                    	"('a'), ('all'), ('and'), ('any'), ('at'), " \
+                    	"('be'), ('do'), ('for'), ('her'), ('how'), " \
+                    	"('if'), ('is'), ('many'), ('not'), ('see'), " \
+                    	"('the'), ('their'), ('when'), ('why');")
+    except:
+        pass
 
-
+    
 @app.route('/')
 def index():
-    os.system('add.py')
     return render_template('index.html')
 
 @app.route("/results")
@@ -76,4 +87,18 @@ def adminZone():
             return render_template("adminZone.html", literaturegohere=html_content)
 
 if __name__ == '__main__':
+    
+    #Initialize connection, update schema if needed and add process files
+    con = psycopg2.connect(
+            host="localhost",
+            database="IR",
+            user="postgres",
+            password="1234")
+    
+    cur = con.cursor()
+    init_schema(cur)
+    os.system('add.py')
+    con.commit()
+    
     app.run()
+    con.close()
