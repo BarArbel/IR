@@ -20,24 +20,7 @@
         <br>
         <main>
         	<h1>Literature Search</h1>
-            {{resultsgohere}}
-
-               <!--  this section is just for test -->
-                <h2>Your query: </h2>
-                <br>
-                <section>
-        	        <a class="result">
-                        <h2>Bohemian Rhapsody/Author</h2>
-                        <h4>fluff, more fluff, tons of fluff</h4>
-                        <p>The first 3 rows of lorem ipsum oh my god brilliant</p>   
-                    </a>
-                    <a class="result">
-                        <h2>Comfortably Numb/Author</h2>
-                        <h4>fluff, more fluff, tons of fluff</h4>
-                        <p>The first 3 rows of lorem ipsum oh my god brilliant</p>   
-                    </a>
-                </section>
-                <!--  this section is just for test -->
+            {{resultsgohere | safe}}
 
    		</main>
         <div id="myModal" class="modal">

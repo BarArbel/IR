@@ -6,7 +6,7 @@ import re
 
 
 # add files to the DB and index them
-def add_files():
+def add_files(con):
     # collects the names of all the files from the designated folder to add to the system.
     files_list = [f for f in listdir("files/files_to_add") if isfile(join("files/files_to_add", f))]
 
@@ -22,11 +22,9 @@ def add_files():
             print(file+" already indexed")
 
     # indexing and DB management
-    con = None
     cur = None
     filePtr = None
     try:
-        con = psycopg2.connect(host="localhost", database="IR", user="postgres", password=1234, port=5432)
         cur = con.cursor()
         for file in to_add:
             # a dictionary is created for each file. the keys are the words in the file and the values are the number of

@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 import os, psycopg2
+from add import add_files
+from search import search_words
 app = Flask(__name__)
 
 
@@ -40,14 +42,38 @@ def init_schema(cur):
     except:
         pass
 
-    
+#Page where a search can be done
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route("/results")
+#Page that shows the results of the query search
+@app.route("/results", methods=['GET'])
 def results():
-    return render_template("results.html")
+    if request.method == 'GET':
+        bool_exp = request.args.getlist('search')[0]
+        
+        #Search for files
+        answer = search_words(bool_exp)
+        html_content = "<h2>Your query: "+bool_exp+" </h2><br><section>"
+        if answer == set():
+            html_content += "<p>No results, sorry!</p"
+        else:
+            # Create html content out of output
+            for i in answer:
+                fileName = i[1].split('.txt', 1)[0]
+                file = open("files/files_indexed/"+fileName+".txt", "r") 
+                file_content = file.read() 
+                author = i[2]
+                literature_type =  i[3]
+                text = file_content.split("\n", 5)[2:5]
+                rows = "".join(map(( lambda x: x+'<br>'), text))
+                
+                html_content += "<a class='result'><h2>"+fileName+" / "+author+"</h2><h4>"+literature_type+"</h4><p>"+rows+"Read more...</p></a>"
+                
+        html_content += "</section>"
+        
+    return render_template("results.html",resultsgohere=html_content)
 
 
 @app.route("/get_file_page", methods=['GET'])
@@ -97,8 +123,10 @@ if __name__ == '__main__':
     
     cur = con.cursor()
     init_schema(cur)
-    os.system('add.py')
     con.commit()
+    
+    # Add files from the library to the system
+    add_files(con)
     
     app.run()
     con.close()
