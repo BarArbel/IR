@@ -68,7 +68,6 @@ def file_status(file_name, file_author):
         con = psycopg2.connect(host="localhost", database="IR", user="postgres", password=1234, port=5432)
         cur = con.cursor()
         cur.execute("SELECT * FROM retrieval.files WHERE f_name='"+file_name+"' AND f_author='"+file_author+"'")
-        print(hideshow_file(file_name, file_author))
         # Check if hidden option is available 
         # hidden false = possible to delete.
         # hidden true = possible to add back.

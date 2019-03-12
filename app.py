@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 app.config['DEBUG'] = False
-
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Page where a search can be done
 @app.route('/')
@@ -78,7 +78,7 @@ def adminZone():
                     author = file_content.split(',', 1)[0]
                     
                     # show if action available equals delete or add
-                    print("this is a file status", file_status(filename, author))
+                    print(file_status(filename, author))
                     if file_status(filename, author):
                         file_command = add_back_file
                     else:
@@ -94,19 +94,17 @@ def adminZone():
 
 
 # Show or hide files according to an action
-@app.route("/adminAction", methods=['GET'])
+@app.route("/adminAction", methods=['POST'])
 def adminAction():
     delete_file = "&#128686 &#8998 Delete :"
     add_back_file = "&#128193 &#9547 Add :"
     file_command = ''
     html_content = "<section>"
     
-    if request.method == 'GET':
+    if request.method == 'POST':
         # Preform action
-        paramFileName = request.args.getlist('param1')[0].split('/', 1)[0]+".txt"
-        print(paramFileName)
-        paramAuthor = request.args.getlist('param1')[0].split('/', 1)[1]
-        print(paramAuthor)
+        paramFileName = request.form['param1'].split('/', 1)[0]+".txt"
+        paramAuthor = request.form['param1'].split('/', 1)[1]
         hideshow_file(paramFileName, paramAuthor)
         
         # Check if directory is empty
@@ -116,7 +114,7 @@ def adminAction():
                 file_content = file.read() 
                 author = file_content.split(',', 1)[0]
                 
-                print("this is a file status", file_status(filename, author))
+                print(file_status(filename, author))
                 if file_status(filename, author):
                     file_command = delete_file
                 else:
@@ -126,11 +124,55 @@ def adminAction():
                 continue
             else:
                 continue
+        html_content += "</section>"
+    
+        return render_template("adminZone.html", literaturegohere=html_content)
+
+# Upload file
+@app.route("/uploader", methods=['POST'])
+def uploader():
+    delete_file = "&#128686 &#8998 Delete :"
+    add_back_file = "&#128193 &#9547 Add :"
+    target = os.path.join(APP_ROOT,"files/files_to_add")
+    if request.method == 'POST':
+        for file in request.files.getlist("upload") :
+            filename = file.filename
+            destination = "/".join([target, filename])
+            file.save(destination)
+            
+            con = psycopg2.connect(
+            host="localhost",
+            database="IR",
+            user="postgres",
+            password="1234")
+    
+            add_files(con)
+            con.close()
+            
+            html_content = "<section>"
+            
+            # Check if directory is empty
+            for filename in os.listdir("files/files_indexed/"):
+                if filename.endswith(".txt"): 
+                    file = open("files/files_indexed/"+filename, "r") 
+                    file_content = file.read() 
+                    author = file_content.split(',', 1)[0]
+                    
+                    # show if action available equals delete or add
+                    print(file_status(filename, author))
+                    if file_status(filename, author):
+                        file_command = add_back_file
+                    else:
+                        file_command = delete_file
+                        
+                    html_content += ('<a class="file"><h2>'+file_command+filename.split('.txt', 1)[0]+'/'+author+'</h2></a>')
+                    continue
+                else:
+                    continue
             html_content += "</section>"
-
-    return render_template("adminZone.html", literaturegohere=html_content)
-
-
+            
+            return render_template("adminZone.html", literaturegohere=html_content)
+            
 if __name__ == '__main__':
     
     # Initialize connection, update schema if needed and add process files

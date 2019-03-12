@@ -34,16 +34,5 @@ def is_statement(s):
     return False
 
 
-a = "(A && (B || (!!C && D))) && (E && F)"
-a = a.replace(" ","")
-a = "({})".format(a)
-if is_statement(a):
-    print ('yes')
-else:
-    print ('no')
-
-    
-
-
 
 

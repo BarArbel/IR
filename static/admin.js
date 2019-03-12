@@ -1,8 +1,13 @@
 function hideShow (titleValue) {
 
-	titleValue = titleValue.split(':', 2)[1];
+	var input = document.createElement('input');
+    input.type = 'hidden';
+	input.name = 'param1';
+    input.value = titleValue.split(':', 2)[1];
+    $('#showhide').append(input);
 
-	window.location.href="adminAction?param1="+titleValue;
+	$('#showhide').submit();
+	//window.location.href="adminAction?param1="+titleValue;
 }
 
 function addClickListener()
