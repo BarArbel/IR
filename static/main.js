@@ -28,6 +28,7 @@ function addClickListener()
   			showResultPage(titleValue);
 		});
 	}
+
 }
 
 function validatePass() {

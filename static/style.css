@@ -138,7 +138,7 @@ a:hover {
     
 }
 
-a.result {
+a.result, a.file {
     width: 51%;
     float: left;
     margin: 30px;
