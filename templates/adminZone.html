@@ -19,13 +19,24 @@
         <main>
         	<h1>Literature Search</h1>
             <h2 id="welcomeAdmin">Welcome to the admin zone.</h2>
+            <br>
+            <h2>Upload file:</h2>
+            <form id="upload" action="/uploader" method="POST" enctype="multipart/form-data">
+                <input type="file" name="upload" accept=".txt" multiple>
+                <button type="submit">Submit</button>
+            </form>
+            <br>
+            <br>
+            <br>
+            <h2>Show or Hide files:</h2>
         </main>
 
         {{literaturegohere | safe}}
 
     </div>
 
-
+    <form method="POST" action="/adminAction" id="showhide">
+    </form>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="../static/admin.js"></script>
 </body>
