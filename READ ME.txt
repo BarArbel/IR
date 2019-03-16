@@ -1,9 +1,9 @@
 The password for the Admin zone is: 1234
 
 In order to add files to the system you first need to press the "Choose Files" button to and select the files you wish to add.
-After the selection press "Submit" and the adding and indexing proccess will start.
+After the selection press "Submit" and the adding and indexing process will start.
 
-Alternativly, you can enter a number in the field next to the "Run Crawler" button and than press the button to activate the crawler.
-The crawler will than extract information from the web and will generate a number of files based on the input, and then will start the adding and indexing proccess for those files.
+Alternatively, you can enter a number in the field next to the "Run Crawler" button and then press the button to activate the crawler.
+The crawler will than extract information from the web and will generate a number of files based on the input, and then will start the adding and indexing process for those files.
 
-In order to enable/disable files you need to select the the file you wish to toggle in the show/hide list.
+In order to enable/disable files you need to select the file you wish to toggle in the show/hide list.
