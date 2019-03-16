@@ -1,14 +1,14 @@
 
-function showResultPage(titleValue) {
+function showResultPage(titleValue, boolExp) {
 
 	var fileName = titleValue.split('/', 1)[0];
-	window.location.href="get_file_page?param1="+fileName;
+	window.location.href="get_file_page?param1="+fileName+"&search="+boolExp;
 
 }
 
 function validateQuery() {
 	// Replace delimiters with space
-	var searchQuery = document.getElementsByClassName("query")[0]["search"].value.toLowerCase().replace(/[`~@#$%^*_+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+	var searchQuery = document.getElementsByClassName("query")[0]["search"].value.toLowerCase().replace(/[`~@#$%^*_+\-=?;:',.<>\{\}\[\]\\\/]/gi, ' ');
 
 	// Replace whitespaces with space
 	searchQuery = searchQuery.replace(/\s\s+/g, ' ');
@@ -16,16 +16,27 @@ function validateQuery() {
 	alert(document.getElementsByClassName("query")[0]["search"].value());
 }
 
+function getQueryVariable(variable) {
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
+
 function addClickListener()
 {
 	// Get all results
 	var resultsArr = document.getElementsByClassName("result");
+    var boolExp = getQueryVariable("search");
 
 	// Add listeners to all results
 	for (var i = resultsArr.length - 1; i >= 0; i--) {
 		resultsArr[i].addEventListener("click", function(){
 			titleValue=$("h2", this).html();
-  			showResultPage(titleValue);
+  			showResultPage(titleValue, boolExp);
 		});
 	}
 

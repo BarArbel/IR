@@ -3,6 +3,8 @@ import os, psycopg2
 from add import add_files
 from search import search_words
 from dbtools import init_schema, file_status, hideshow_file
+import re
+from crawler import lyrics_crawler
 app = Flask(__name__)
 
 
@@ -36,6 +38,22 @@ def results():
                 literature_type = i[3]
                 text = file_content.split("\n", 5)[2:5]
                 rows = "".join(map(( lambda x: x+'<br>'), text))
+                bold = str(bool_exp).split()
+                j = 0
+                while j != len(bold):
+                    bold[j] = bold[j].strip("()")
+                    if bold[j] == "&&" or bold[j] == "||":
+                        bold.pop(j)
+                    else:
+                        if bold[j] == "!!":
+                            bold.pop(j + 1)
+                            bold.pop(j)
+                        else:
+                            bold[j] = bold[j].strip('"')
+                            j += 1
+                for word in bold:
+                    pattern = re.compile(r"\b(%s)\b" % word, re.IGNORECASE)
+                    rows = pattern.sub("<b>\\1</b>", rows)
                 
                 html_content += "<a class='result'><h2>"+fileName+" / "+author+"</h2><h4>"+literature_type+"</h4><p>"+rows+"<br><b>Read more...</b></p></a>"
                 
@@ -47,14 +65,32 @@ def results():
 @app.route("/get_file_page", methods=['GET'])
 def get_file_page():
     if request.method == 'GET':
-        fileName = request.args.getlist('param1')
+        fileName = request.args.getlist('param1')[0]
+        fileName = fileName.strip(" ")
+        bool_exp = request.args.getlist('search')[0]
         
         # Get file and print it
-        file = open("files/files_indexed/"+fileName[0]+".txt", "r") 
+        file = open("files/files_indexed/"+fileName+".txt", "r")
         file_content = file.read() 
         author = file_content.split(',', 1)[0]
         text = file_content.split("\n", 1)[1].replace("\n", "<br>")
-        html_content = "<main> <h1>Literature Search</h1> <h2>"+fileName[0]+" / "+author+"</h2> "+text+" </main>"
+        bold = str(bool_exp).split()
+        j = 0
+        while j != len(bold):
+            bold[j] = bold[j].strip("()")
+            if bold[j] == "&&" or bold[j] == "||":
+                bold.pop(j)
+            else:
+                if bold[j] == "!!":
+                    bold.pop(j + 1)
+                    bold.pop(j)
+                else:
+                    bold[j] = bold[j].strip('"')
+                    j += 1
+        for word in bold:
+            pattern = re.compile(r"\b(%s)\b" % word, re.IGNORECASE)
+            text = pattern.sub("<b>\\1</b>", text)
+        html_content = "<main> <h1>Literature Search</h1> <h2>"+fileName+" / "+author+"</h2> "+text+" </main>"
        
     return render_template("file.html",literaturegohere=html_content)
 
@@ -128,11 +164,10 @@ def adminAction():
     
         return render_template("adminZone.html", literaturegohere=html_content)
 
+
 # Upload file
 @app.route("/uploader", methods=['POST'])
 def uploader():
-    delete_file = "&#128686 &#8998 Delete :"
-    add_back_file = "&#128193 &#9547 Add :"
     target = os.path.join(APP_ROOT,"files/files_to_add")
     if request.method == 'POST':
         for file in request.files.getlist("upload") :
@@ -141,38 +176,59 @@ def uploader():
             file.save(destination)
             
             con = psycopg2.connect(
-            host="localhost",
-            database="IR",
-            user="postgres",
-            password="1234")
+                host="localhost",
+                database="IR",
+                user="postgres",
+                password="1234")
     
             add_files(con)
             con.close()
             
-            html_content = "<section>"
-            
-            # Check if directory is empty
-            for filename in os.listdir("files/files_indexed/"):
-                if filename.endswith(".txt"): 
-                    file = open("files/files_indexed/"+filename, "r") 
-                    file_content = file.read() 
-                    author = file_content.split(',', 1)[0]
-                    
-                    # show if action available equals delete or add
-                    print(file_status(filename, author))
-                    if file_status(filename, author):
-                        file_command = add_back_file
-                    else:
-                        file_command = delete_file
-                        
-                    html_content += ('<a class="file"><h2>'+file_command+filename.split('.txt', 1)[0]+'/'+author+'</h2></a>')
-                    continue
-                else:
-                    continue
-            html_content += "</section>"
-            
-            return render_template("adminZone.html", literaturegohere=html_content)
-            
+        return update_page()
+
+
+# Run Crawler
+@app.route("/crawler", methods=['POST'])
+def crawl():
+    if request.method == 'POST':
+        con = psycopg2.connect(host="localhost", database="IR", user="postgres", password="1234")
+        num = int(request.form['crawler'])
+        lyrics_crawler(num)
+        add_files(con)
+        con.close()
+        return update_page()
+
+
+def update_page():
+    delete_file = "&#128686 &#8998 Delete :"
+    add_back_file = "&#128193 &#9547 Add :"
+
+    html_content = "<section>"
+
+    # Check if directory is empty
+    for filename in os.listdir("files/files_indexed/"):
+        if filename.endswith(".txt"):
+            file = open("files/files_indexed/" + filename, "r")
+            file_content = file.read()
+            author = file_content.split(',', 1)[0]
+
+            # show if action available equals delete or add
+            print(file_status(filename, author))
+            if file_status(filename, author):
+                file_command = add_back_file
+            else:
+                file_command = delete_file
+
+            html_content += ('<a class="file"><h2>' + file_command + filename.split('.txt', 1)[
+                0] + '/' + author + '</h2></a>')
+            continue
+        else:
+            continue
+    html_content += "</section>"
+
+    return render_template("adminZone.html", literaturegohere=html_content)
+
+
 if __name__ == '__main__':
     
     # Initialize connection, update schema if needed and add process files

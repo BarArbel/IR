@@ -1,5 +1,5 @@
 import psycopg2
-from os import listdir
+from os import listdir, remove
 from os.path import isfile, join, exists
 from shutil import copyfile
 import re
@@ -18,8 +18,10 @@ def add_files(con):
         if exists("files/files_indexed/"+file) is False:
             copyfile("files/files_to_add/"+file, "files/files_indexed/"+file)
             to_add.append(file)
+            remove("files/files_to_add/"+file)
         else:
             print(file+" already indexed")
+            remove("files/files_to_add/"+file)
 
     # indexing and DB management
     cur = None
@@ -37,7 +39,7 @@ def add_files(con):
             con.commit()
             fileDict = {}
             for line in filePtr:
-                for word in re.split("[ .,;:\"\n!?()]+", line):
+                for word in re.split("[ .,;:\"\n!?()[\]{}]+", line):
                     word = word.lower()
                     word = word.replace("'", "_")  # ' is replaced with _ because it doesn't work with the syntax rules
                     if word in fileDict:
@@ -45,6 +47,7 @@ def add_files(con):
                     else:
                         if word is not "":
                             fileDict[word] = 1
+            filePtr.close()
             # the indexing process
             for word in fileDict:
                 cur.execute("SELECT * FROM retrieval.inverted_index WHERE word='"+word+"'")
@@ -63,7 +66,5 @@ def add_files(con):
     finally:
         if cur is not None:
             cur.close()
-        if con is not None:
-            con.close()
         if filePtr is not None:
             filePtr.close()
