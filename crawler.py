@@ -23,19 +23,16 @@ def lyrics_crawler(max_pages):
             song_title = s_find.string
             if english_chars_check(song_title) is False:
                 continue
-            print(song_title)
             s_find = soup.find("div", {"class": "artist-meta"})
             artist = s_find.find("h4").string
             artist = artist.split(",")[0]
             if english_chars_check(artist) is False:
                 continue
-            print(artist)
             s_find = soup.find("pre", {"id": "lyric-body-text"})
             lyrics = re.sub("<[^>]+>", "", str(s_find))
+            lyrics = re.sub("\r", "", lyrics)
             if english_chars_check(lyrics) is False:
                 continue
-            print()
-            print(lyrics)
         except:
             continue
 
@@ -44,6 +41,3 @@ def lyrics_crawler(max_pages):
         filePtr.write(lyrics)
 
         page += 1
-
-
-lyrics_crawler(1)

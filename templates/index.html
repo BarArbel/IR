@@ -24,6 +24,15 @@
 				<input type="text" placeholder="Search.." name="search">
 	  			<button type="submit"><i class="fa fa-search"></i></button>
 	        </form>
+			<br><br>
+			<h3>
+				The query should be structured accurding to the followind pattern:<br><br>
+				1. The query must contain atleast one word.<br>
+				2. Following each word - except the last one in the expression - there must be an operand (&& or ||)<br>
+				3. !! must come right before the word it's meant to apply to.<br>
+				4. In order to take common stop-words into effect they must be place between ""<br><br>
+				Example: ((word1 && word2) || "stop-wrod") && !! word3
+			</h3>
    		</main>
 
    		<div id="myModal" class="modal">

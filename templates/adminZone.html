@@ -25,6 +25,11 @@
                 <input type="file" name="upload" accept=".txt" multiple>
                 <button type="submit">Submit</button>
             </form>
+			<br>
+			<form id="crawler" action="/crawler" method="POST" enctype="multipart/form-data">
+                <input type="number" name="crawler" min="1" max="100">
+                <button type="submit">Run Crawler</button>
+			</form>
             <br>
             <br>
             <br>
